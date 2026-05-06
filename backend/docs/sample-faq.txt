@@ -1,0 +1,14 @@
+Q: What is your return policy?
+A: We accept returns within 30 days of purchase. Items must be unused and in original packaging. Contact support@yourcompany.com to initiate a return.
+
+Q: How long does shipping take?
+A: Standard shipping takes 5-7 business days. Express shipping takes 2-3 business days and is available at checkout for an additional fee.
+
+Q: How do I track my order?
+A: You will receive a tracking email within 24 hours of dispatch. You can also log in to your account and visit the Orders section.
+
+Q: Can I cancel an order?
+A: Orders can be cancelled before they are shipped. If an order has already shipped, please request a return after delivery.
+
+Q: What should I do for billing problems?
+A: Billing problems should be reviewed by a human support agent. Please include your order number and the email address used at checkout.
