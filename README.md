@@ -1,6 +1,6 @@
 # RAG AI Customer Support Chatbot
 
-ragsupportsuite.netlify.app
+https://ragsupportsuite.netlify.app/
 
 Full-stack customer support chatbot built with Node.js, React, TypeScript, Supabase, and a Supabase AI Edge Function. It ingests your business documents, chunks them, stores the captured text and embeddings in Supabase, retrieves relevant context by support category, and asks the AI model to answer only from that context.
 
