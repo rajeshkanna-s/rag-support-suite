@@ -87,151 +87,180 @@ export default function App() {
   const userLabel = session?.user.email ?? 'Guest';
 
   return (
-    <main className="h-screen overflow-hidden bg-[#eef2f5] text-ink">
+    <main className="h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans">
       <div className="grid h-screen lg:grid-cols-[272px_1fr]">
-        <aside className="h-screen overflow-hidden border-b border-[#183235] bg-[#102326] text-white lg:sticky lg:top-0 lg:border-b-0 lg:border-r">
-          <div className="flex h-full flex-col px-4 py-5">
-            <div className="flex items-center gap-3 px-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#16a085] text-white shadow-sm">
-                <Bot size={24} aria-hidden="true" />
+        
+        {/* Refined Sidebar - Slack/Linear Style Dark Slate */}
+        <aside className="h-screen overflow-hidden border-b border-slate-800 bg-slate-900 text-white lg:sticky lg:top-0 lg:border-b-0 lg:border-r lg:border-slate-800 shadow-lg">
+          <div className="flex h-full flex-col px-4 py-6">
+            
+            {/* Header Brand Logo */}
+            <div className="flex items-center gap-3 px-2 mb-6">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white shadow-md transition-transform duration-300 hover:rotate-6">
+                <Bot size={22} aria-hidden="true" />
               </div>
               <div>
-                <h1 className="text-base font-semibold">RAG Support Suite</h1>
-                <p className="text-xs text-zinc-300">Enterprise support desk</p>
+                <h1 className="text-base font-bold tracking-tight font-display text-white">RAG Support</h1>
+                <p className="text-[10px] font-bold tracking-wide uppercase text-indigo-400">Enterprise Desk</p>
               </div>
             </div>
 
-            <div className="mt-5 rounded-md border border-white/10 bg-white/[0.06] p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-300">
-                <Building2 size={14} aria-hidden="true" />
+            {/* Workspace details inside dark container */}
+            <div className="bg-slate-800/40 border border-slate-700/30 rounded-xl p-3.5 mb-6">
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+                <Building2 size={12} aria-hidden="true" className="text-indigo-400" />
                 Workspace
               </div>
-              <p className="mt-2 text-sm font-semibold">Acme Global Services</p>
-              <p className="text-xs text-zinc-400">Production environment</p>
+              <p className="mt-1.5 text-sm font-semibold text-white tracking-tight">Acme Global Services</p>
+              <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-dot" />
+                Production Sandbox
+              </p>
             </div>
 
-            <nav className="mt-6 grid gap-1">
+            {/* Navigation buttons */}
+            <nav className="space-y-1">
               <button
                 type="button"
                 onClick={() => navigate(categoryToPath(routeCategory ?? 'HR'))}
-                className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition ${
+                className={`w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-medium transition-all duration-150 ${
                   view === 'chat'
-                    ? 'bg-white font-semibold text-[#102326]'
-                    : 'text-zinc-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-slate-800 text-white border-l-2 border-indigo-500'
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border-l-2 border-transparent'
                 }`}
               >
-                <MessageSquareText size={18} aria-hidden="true" />
+                <MessageSquareText size={16} aria-hidden="true" className={view === 'chat' ? 'text-white' : 'text-slate-400'} />
                 Ticket Console
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/admin')}
-                className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition ${
+                className={`w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-medium transition-all duration-150 ${
                   view === 'admin' || view === 'auth'
-                    ? 'bg-white font-semibold text-[#102326]'
-                    : 'text-zinc-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-slate-800 text-white border-l-2 border-indigo-500'
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border-l-2 border-transparent'
                 }`}
               >
-                <Database size={18} aria-hidden="true" />
+                <Database size={16} aria-hidden="true" className={view === 'admin' || view === 'auth' ? 'text-white' : 'text-slate-400'} />
                 Admin Studio
               </button>
             </nav>
 
-            <div className="mt-auto rounded-md border border-white/10 bg-white/[0.06] p-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                <ShieldCheck size={14} aria-hidden="true" />
-                Access
+            {/* User Access Card */}
+            <div className="mt-auto bg-slate-800/40 border border-slate-700/30 rounded-xl p-3.5">
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                <ShieldCheck size={12} aria-hidden="true" className="text-indigo-400" />
+                Access Layer
               </div>
-              <p className="mt-2 truncate text-sm font-medium text-white">{userLabel}</p>
-              <p className="text-xs capitalize text-zinc-400">{role ?? (session ? 'checking' : 'public')}</p>
+              <p className="mt-1.5 truncate text-xs font-semibold text-slate-200">{userLabel}</p>
+              <p className="text-[11px] capitalize text-indigo-400 mt-1 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                {role ?? (session ? 'Authorized Admin' : 'Public Operator')}
+              </p>
             </div>
 
             {session && (
               <button
                 type="button"
                 onClick={() => void signOut()}
-                className="mt-3 flex items-center gap-2 rounded-md border border-white/10 px-3 py-2 text-sm text-zinc-300 transition hover:bg-white/10 hover:text-white"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-800 bg-slate-900/50 hover:bg-red-950/20 hover:border-red-900/30 hover:text-red-400 px-3 py-2.5 text-xs font-medium text-slate-400 transition-colors"
               >
-                <LogOut size={15} aria-hidden="true" />
-                Logout
+                <LogOut size={14} aria-hidden="true" />
+                Disconnect Session
               </button>
             )}
           </div>
         </aside>
 
-        <section className="min-w-0 overflow-y-auto">
-          <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/90 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
+        {/* Content Area */}
+        <section className="min-w-0 overflow-y-auto bg-slate-50 flex flex-col h-screen">
+          
+          {/* Main Top Header - Light and Clean */}
+          <header className="sticky top-0 z-10 border-b border-slate-200 bg-white px-4 py-4 backdrop-blur-md sm:px-6 lg:px-8 shadow-sm">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ocean">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600">
                   {view === 'chat'
-                    ? 'Customer operations'
-                    : 'Knowledge operations'}
+                    ? 'Service Operations'
+                    : 'Knowledge Operations'}
                 </p>
-                <h2 className="mt-1 text-[28px] font-semibold tracking-normal">
+                <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 font-display">
                   {view === 'chat'
                     ? 'Omnichannel Support Console'
                     : 'AI Knowledge Control Center'}
                 </h2>
               </div>
+              
               <div className="flex flex-wrap items-center gap-3">
-                <label className="hidden h-10 min-w-[320px] items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 px-3 text-sm xl:flex">
-                  <Search size={16} aria-hidden="true" className="text-zinc-500" />
+                {/* Search bar */}
+                <label className="hidden h-9 min-w-[280px] items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm xl:flex focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all">
+                  <Search size={14} aria-hidden="true" className="text-slate-400" />
                   <input
-                    placeholder="Search tickets, documents, customers"
-                    className="w-full bg-transparent outline-none"
+                    placeholder="Search database, tickets, customers..."
+                    className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-xs"
                   />
                 </label>
+                
                 <button
                   type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-350 transition shadow-sm"
                   aria-label="Notifications"
                   title="Notifications"
                 >
-                  <Bell size={17} aria-hidden="true" />
+                  <Bell size={15} aria-hidden="true" />
                 </button>
-                <span className="inline-flex h-10 items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 text-sm text-emerald-800">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  Online
+                
+                <span className="inline-flex h-9 items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 shadow-sm">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-dot" />
+                  Service Active
                 </span>
-                <span className="inline-flex h-10 items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-700">
-                  <UserCircle size={16} aria-hidden="true" />
-                  {session ? 'Signed in' : 'Public access'}
+                
+                <span className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 shadow-sm">
+                  <UserCircle size={14} aria-hidden="true" className="text-slate-400" />
+                  {session ? 'Internal Host' : 'Guest Operator'}
                 </span>
               </div>
             </div>
           </header>
 
-          <div className="max-w-full overflow-x-hidden px-4 py-5 sm:px-6 lg:px-8">
-            <button
-              type="button"
-              onClick={() => navigate(categoryToPath(routeCategory ?? 'HR'))}
-              className={`mb-4 mr-2 rounded-md border px-3 py-2 text-sm lg:hidden ${
-                view === 'chat' ? 'border-ocean bg-teal-50 text-ocean' : 'border-zinc-300 bg-white'
-              }`}
-            >
-              Customer View
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/admin')}
-              className={`mb-4 rounded-md border px-3 py-2 text-sm lg:hidden ${
-                view === 'admin' || view === 'auth'
-                  ? 'border-ocean bg-teal-50 text-ocean'
-                  : 'border-zinc-300 bg-white'
-              }`}
-            >
-              Admin
-            </button>
+          {/* Sub Content Grid */}
+          <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div className="flex gap-2 mb-4 lg:hidden">
+              <button
+                type="button"
+                onClick={() => navigate(categoryToPath(routeCategory ?? 'HR'))}
+                className={`rounded-lg border px-4 py-2 text-xs font-semibold ${
+                  view === 'chat'
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                    : 'border-slate-200 bg-white text-slate-600'
+                }`}
+              >
+                Customer Console
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/admin')}
+                className={`rounded-lg border px-4 py-2 text-xs font-semibold ${
+                  view === 'admin' || view === 'auth'
+                    ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                    : 'border-slate-200 bg-white text-slate-600'
+                }`}
+              >
+                Admin Studio
+              </button>
+            </div>
 
-            {view === 'chat' && <CustomerChat fixedCategory={routeCategory} />}
-            {view === 'auth' && <AuthPage onDone={() => setView('admin')} />}
-            {view === 'admin' &&
-              (session ? (
-                <AdminDashboard accessToken={session.access_token} />
-              ) : (
-                <AuthPage onDone={() => setView('admin')} />
-              ))}
+            {/* Mount page views */}
+            <div className="animate-fade-in-up">
+              {view === 'chat' && <CustomerChat fixedCategory={routeCategory} />}
+              {view === 'auth' && <AuthPage onDone={() => setView('admin')} />}
+              {view === 'admin' &&
+                (session ? (
+                  <AdminDashboard accessToken={session.access_token} />
+                ) : (
+                  <AuthPage onDone={() => setView('admin')} />
+                ))}
+            </div>
           </div>
         </section>
       </div>

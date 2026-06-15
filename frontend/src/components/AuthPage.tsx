@@ -35,57 +35,68 @@ export function AuthPage({ onDone }: AuthPageProps) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-6xl overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
-      <div className="grid lg:grid-cols-[1fr_420px]">
-        <div className="hidden bg-[#122426] p-8 text-white lg:block">
-          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-white/10">
-            <ShieldCheck size={24} aria-hidden="true" />
+    <section className="mx-auto w-full max-w-5xl overflow-hidden rounded-2xl border border-brand-borderDark/60 bg-slate-950/80 backdrop-blur-md shadow-2xl animate-fade-in-up">
+      <div className="grid lg:grid-cols-[1.1fr_1fr]">
+        
+        {/* Left branding panel with neural flows design */}
+        <div className="hidden bg-gradient-to-br from-brand-indigo/35 via-slate-950 to-brand-teal/20 p-10 text-white lg:flex flex-col justify-between relative overflow-hidden border-r border-brand-borderDark/60">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 h-40 w-40 rounded-full bg-brand-indigo/10 blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-40 w-40 rounded-full bg-brand-teal/10 blur-3xl animate-pulse" />
+          
+          <div className="relative z-10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-indigo to-brand-teal text-white shadow-glow-indigo">
+              <ShieldCheck size={24} aria-hidden="true" />
+            </div>
+            <h2 className="mt-8 text-2xl font-bold tracking-tight font-display bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">SECURE ACCESS DOMAIN</h2>
+            <p className="mt-3 text-xs leading-relaxed text-slate-400 max-w-sm">
+              Authenticate via enterprise portal credentials to update grounding knowledge bases, chunk vectors, and deploy model profiles.
+            </p>
           </div>
-          <h2 className="mt-8 text-3xl font-semibold">Secure admin access</h2>
-          <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-300">
-            Manage department knowledge and support documents from one controlled workspace.
-          </p>
-          <div className="mt-8 grid grid-cols-2 gap-3 text-sm text-zinc-200">
-            <span className="rounded-md border border-white/10 bg-white/5 px-3 py-3">Knowledge RAG</span>
-            <span className="rounded-md border border-white/10 bg-white/5 px-3 py-3">Analytics</span>
-            <span className="rounded-md border border-white/10 bg-white/5 px-3 py-3">Company setup</span>
-            <span className="rounded-md border border-white/10 bg-white/5 px-3 py-3">Analytics</span>
+
+          <div className="relative z-10 grid grid-cols-2 gap-3 text-xs font-semibold tracking-wide uppercase text-slate-300 pt-12">
+            <span className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3.5 hover:border-brand-teal/20 transition cursor-default">Knowledge RAG</span>
+            <span className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3.5 hover:border-brand-indigo/20 transition cursor-default">Neural Audit</span>
+            <span className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3.5 hover:border-brand-teal/20 transition cursor-default">Tenant Config</span>
+            <span className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3.5 hover:border-brand-indigo/20 transition cursor-default">API Control</span>
           </div>
         </div>
 
-        <div className="p-6 sm:p-8">
+        {/* Right form input panel */}
+        <div className="p-8 sm:p-10 flex flex-col justify-center bg-slate-950/40">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ocean">Admin Portal</p>
-            <h2 className="mt-2 text-2xl font-semibold">
-              {mode === 'login' ? 'Login to your account' : 'Create an account'}
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-indigo">Identity Gateway</p>
+            <h2 className="mt-2 text-xl font-bold tracking-tight text-white font-display">
+              {mode === 'login' ? 'ESTABLISH ADMIN SESSION' : 'REGISTER SECURE ENDPOINT'}
             </h2>
-            <p className="mt-1 text-sm text-zinc-600">Use your authorized admin credentials.</p>
+            <p className="mt-1 text-xs text-slate-400">Enter system administrator authorization tokens.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
-            <label className="block text-sm font-medium text-zinc-700">
-              Email
-              <span className="mt-1 flex h-11 items-center gap-2 rounded-md border border-zinc-300 bg-white px-3 transition focus-within:border-ocean focus-within:ring-2 focus-within:ring-ocean/15">
-                <Mail size={16} aria-hidden="true" className="text-zinc-500" />
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400">
+              Email Identifier
+              <span className="mt-2.5 flex h-11 items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900/40 px-3.5 focus-within:border-brand-indigo focus-within:ring-1 focus-within:ring-brand-indigo/20 transition-all">
+                <Mail size={15} aria-hidden="true" className="text-slate-500" />
                 <input
                   value={email}
                   onChange={event => setEmail(event.target.value)}
-                  className="w-full outline-none"
+                  className="w-full bg-transparent text-xs text-slate-200 outline-none placeholder-slate-600"
                   type="email"
+                  placeholder="admin@company.com"
                   required
                 />
               </span>
             </label>
 
-            <label className="block text-sm font-medium text-zinc-700">
-              Password
-              <span className="mt-1 flex h-11 items-center gap-2 rounded-md border border-zinc-300 bg-white px-3 transition focus-within:border-ocean focus-within:ring-2 focus-within:ring-ocean/15">
-                <Lock size={16} aria-hidden="true" className="text-zinc-500" />
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-400">
+              Security Keyphrase
+              <span className="mt-2.5 flex h-11 items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900/40 px-3.5 focus-within:border-brand-indigo focus-within:ring-1 focus-within:ring-brand-indigo/20 transition-all">
+                <Lock size={15} aria-hidden="true" className="text-slate-500" />
                 <input
                   value={password}
                   onChange={event => setPassword(event.target.value)}
-                  className="w-full outline-none"
+                  className="w-full bg-transparent text-xs text-slate-200 outline-none placeholder-slate-600"
                   type="password"
+                  placeholder="••••••••••••"
                   minLength={6}
                   required
                 />
@@ -93,7 +104,7 @@ export function AuthPage({ onDone }: AuthPageProps) {
             </label>
 
             {message && (
-              <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              <p className="rounded-xl border border-amber-900/50 bg-amber-950/20 px-4 py-3 text-xs font-semibold text-amber-300">
                 {message}
               </p>
             )}
@@ -101,18 +112,18 @@ export function AuthPage({ onDone }: AuthPageProps) {
             <button
               type="submit"
               disabled={loading}
-              className="h-11 w-full rounded-md bg-ocean px-4 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:bg-zinc-300"
+              className="h-11 w-full rounded-xl bg-gradient-to-r from-brand-indigo to-brand-indigoDark text-xs font-bold uppercase tracking-wider text-white shadow-glow-indigo hover:brightness-110 transition disabled:from-slate-800 disabled:to-slate-800 disabled:text-slate-500 disabled:shadow-none"
             >
-              {loading ? 'Please wait' : mode === 'login' ? 'Login' : 'Sign up'}
+              {loading ? 'Validating Token...' : mode === 'login' ? 'Establish Session' : 'Create Credentials'}
             </button>
           </form>
 
           <button
             type="button"
             onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-            className="mt-4 text-sm font-medium text-ocean hover:text-teal-800"
+            className="mt-4 text-center text-xs font-semibold text-brand-indigo hover:text-indigo-400 transition"
           >
-            {mode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Login'}
+            {mode === 'login' ? 'Request credentials registration' : 'Return to secure gateway session'}
           </button>
         </div>
       </div>
