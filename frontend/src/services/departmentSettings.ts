@@ -3,14 +3,14 @@ import { SUPPORT_CATEGORIES, SupportCategory } from '../types';
 const STORAGE_KEY = 'supportai.enabledDepartments';
 
 function parse(value: string | null): SupportCategory[] {
-  if (!value) return ['HR'];
+  if (value === null) return [...SUPPORT_CATEGORIES];
 
   try {
     const parsed = JSON.parse(value) as string[];
     const valid = parsed.filter(item => SUPPORT_CATEGORIES.includes(item as SupportCategory)) as SupportCategory[];
-    return valid.length > 0 ? valid : ['HR'];
+    return valid;
   } catch {
-    return ['HR'];
+    return [...SUPPORT_CATEGORIES];
   }
 }
 
@@ -19,8 +19,7 @@ export function getEnabledDepartments(): SupportCategory[] {
 }
 
 export function setEnabledDepartments(categories: SupportCategory[]) {
-  const next = categories.length > 0 ? categories : ['HR'];
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
   window.dispatchEvent(new CustomEvent('supportai:departments'));
 }
 

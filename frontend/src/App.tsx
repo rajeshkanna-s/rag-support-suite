@@ -20,6 +20,7 @@ import {
   pathToSupportCategory,
   SupportCategory,
 } from './types';
+import { getWorkspaceSettings, subscribeWorkspace } from './services/workspaceSettings';
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -28,6 +29,13 @@ export default function App() {
   const [routeCategory, setRouteCategory] = useState<SupportCategory | undefined>(() =>
     pathToSupportCategory(window.location.pathname)
   );
+  const [workspaceSettings, setWorkspaceSettingsState] = useState(getWorkspaceSettings);
+
+  useEffect(() => {
+    return subscribeWorkspace(() => {
+      setWorkspaceSettingsState(getWorkspaceSettings());
+    });
+  }, []);
 
   function syncViewFromPath() {
     const path = window.location.pathname;
@@ -111,7 +119,7 @@ export default function App() {
                 <Building2 size={12} aria-hidden="true" className="text-indigo-400" />
                 Workspace
               </div>
-              <p className="mt-1.5 text-sm font-semibold text-white tracking-tight">Acme Global Services</p>
+              <p className="mt-1.5 text-sm font-semibold text-white tracking-tight">{workspaceSettings.companyName}</p>
               <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-dot" />
                 Production Sandbox
@@ -175,57 +183,9 @@ export default function App() {
         {/* Content Area */}
         <section className="min-w-0 overflow-y-auto bg-slate-50 flex flex-col h-screen">
           
-          {/* Main Top Header - Light and Clean */}
-          <header className="sticky top-0 z-10 border-b border-slate-200 bg-white px-4 py-4 backdrop-blur-md sm:px-6 lg:px-8 shadow-sm">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-600">
-                  {view === 'chat'
-                    ? 'Service Operations'
-                    : 'Knowledge Operations'}
-                </p>
-                <h2 className="mt-1 text-xl font-bold tracking-tight text-slate-900 font-display">
-                  {view === 'chat'
-                    ? 'Omnichannel Support Console'
-                    : 'AI Knowledge Control Center'}
-                </h2>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-3">
-                {/* Search bar */}
-                <label className="hidden h-9 min-w-[280px] items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm xl:flex focus-within:border-indigo-500 focus-within:bg-white focus-within:ring-1 focus-within:ring-indigo-500/20 transition-all">
-                  <Search size={14} aria-hidden="true" className="text-slate-400" />
-                  <input
-                    placeholder="Search database, tickets, customers..."
-                    className="w-full bg-transparent text-slate-800 placeholder-slate-400 outline-none text-xs"
-                  />
-                </label>
-                
-                <button
-                  type="button"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-350 transition shadow-sm"
-                  aria-label="Notifications"
-                  title="Notifications"
-                >
-                  <Bell size={15} aria-hidden="true" />
-                </button>
-                
-                <span className="inline-flex h-9 items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 shadow-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-dot" />
-                  Service Active
-                </span>
-                
-                <span className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 shadow-sm">
-                  <UserCircle size={14} aria-hidden="true" className="text-slate-400" />
-                  {session ? 'Internal Host' : 'Guest Operator'}
-                </span>
-              </div>
-            </div>
-          </header>
-
           {/* Sub Content Grid */}
-          <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-            <div className="flex gap-2 mb-4 lg:hidden">
+          <div className={`flex-1 ${view === 'chat' ? 'flex flex-col min-h-0' : 'overflow-y-auto'} px-4 py-6 sm:px-6 lg:px-8`}>
+            <div className="flex gap-2 mb-4 lg:hidden shrink-0">
               <button
                 type="button"
                 onClick={() => navigate(categoryToPath(routeCategory ?? 'HR'))}
@@ -251,8 +211,13 @@ export default function App() {
             </div>
 
             {/* Mount page views */}
-            <div className="animate-fade-in-up">
-              {view === 'chat' && <CustomerChat fixedCategory={routeCategory} />}
+            <div className={`animate-fade-in-up ${view === 'chat' ? 'flex-1 flex flex-col min-h-0' : ''}`}>
+              {view === 'chat' && (
+                <CustomerChat
+                  fixedCategory={routeCategory}
+                  onCategoryChange={newCategory => navigate(categoryToPath(newCategory))}
+                />
+              )}
               {view === 'auth' && <AuthPage onDone={() => setView('admin')} />}
               {view === 'admin' &&
                 (session ? (

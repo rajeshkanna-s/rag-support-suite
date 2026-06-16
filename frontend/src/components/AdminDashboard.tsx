@@ -1,10 +1,13 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { DragEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import {
   Activity,
+  BarChart3,
   BellRing,
   Building2,
   CheckCircle2,
+  Cpu,
   Database,
+  DollarSign,
   FileText,
   FileUp,
   Filter,
@@ -16,7 +19,18 @@ import {
   SlidersHorizontal,
   Trash2,
   UploadCloud,
+  Users,
+  Wrench,
 } from 'lucide-react';
+
+const categoryIcons: Record<string, any> = {
+  HR: Users,
+  Operation: Wrench,
+  'IT support': Cpu,
+  'Accounts and Finance': DollarSign,
+  Sales: BarChart3,
+};
+import { getWorkspaceSettings, setWorkspaceSettings } from '../services/workspaceSettings';
 import {
   deleteKnowledgeDocument,
   listKnowledge,
@@ -46,10 +60,54 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
   const [url, setUrl] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+
+  function handleDrag(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }
+
+  function handleDrop(e: DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+    }
+  }
   const [message, setMessage] = useState('');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [enabledDepartments, setLocalEnabledDepartments] = useState<SupportCategory[]>(getEnabledDepartments);
+  const [companyName, setCompanyName] = useState(() => getWorkspaceSettings().companyName);
+  const [dispatchEmail, setDispatchEmail] = useState(() => getWorkspaceSettings().dispatchEmail);
+  const [customDomain, setCustomDomain] = useState(() => getWorkspaceSettings().customDomain);
+  const [brandColor, setBrandColor] = useState(() => getWorkspaceSettings().brandColor);
+
+  useEffect(() => {
+    setMessage('');
+  }, [activeTab]);
+
+  function handleCompanySubmit(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setMessage('');
+    setTimeout(() => {
+      setLoading(false);
+      setWorkspaceSettings({
+        companyName,
+        dispatchEmail,
+        customDomain,
+        brandColor,
+      });
+      setMessage('Corporate branding profile changes saved successfully.');
+    }, 600);
+  }
 
   const groupedCount = useMemo(() => {
     return SUPPORT_CATEGORIES.reduce<Record<string, number>>((acc, item) => {
@@ -169,9 +227,8 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
     const next = enabledDepartments.includes(item)
       ? enabledDepartments.filter(categoryItem => categoryItem !== item)
       : [...enabledDepartments, item];
-    const finalValue = next.length > 0 ? next : [item];
-    setLocalEnabledDepartments(finalValue);
-    setEnabledDepartments(finalValue);
+    setLocalEnabledDepartments(next);
+    setEnabledDepartments(next);
   }
 
   const tabs: Array<{ key: AdminTab; label: string; icon: typeof Database }> = [
@@ -185,13 +242,13 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
       {/* Top Banner & Stats Overview */}
       <div className="grid min-w-0 gap-5 md:grid-cols-2 xl:grid-cols-4">
         {/* Main Dashboard Welcome Card */}
-        <div className="min-w-0 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-600 to-indigo-800 p-6 text-white shadow-md relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-xl" />
+        <div className="min-w-0 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-600 to-indigo-800 p-4 text-white shadow-sm relative overflow-hidden flex flex-col justify-center">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 h-20 w-20 rounded-full bg-white/10 blur-lg" />
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-indigo-200">Admin Studio</p>
-            <h2 className="mt-1.5 text-lg font-bold tracking-tight font-display text-white">Neural Knowledge Desk</h2>
-            <p className="mt-2.5 text-xs leading-relaxed text-indigo-100">
-              Control department data sources, index embeddings, and audit RAG accuracy metrics.
+            <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-indigo-200">Admin Studio</p>
+            <h2 className="mt-0.5 text-base font-bold tracking-tight font-display text-white">Neural Knowledge Desk</h2>
+            <p className="mt-1 text-[11px] leading-snug text-indigo-100">
+              Manage category indexes, embeddings, and workspace settings.
             </p>
           </div>
         </div>
@@ -210,18 +267,18 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
         ].map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:border-slate-300 transition duration-300">
+            <div key={item.label} className="min-w-0 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:border-slate-300 transition duration-300">
               <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">{item.label}</p>
-                  <p className="mt-2.5 truncate text-xl font-bold text-slate-800 tracking-tight">{item.value}</p>
+                <div className="min-w-0">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">{item.label}</p>
+                  <p className="mt-1.5 truncate text-lg font-bold text-slate-800 tracking-tight">{item.value}</p>
                 </div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-500 border border-slate-200 group-hover:text-indigo-600 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition duration-300">
-                  <Icon size={15} />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-500 border border-slate-200 group-hover:text-indigo-600 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition duration-300">
+                  <Icon size={14} />
                 </div>
               </div>
-              <div className="mt-4">
-                <span className={`inline-flex rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+              <div className="mt-2.5">
+                <span className={`inline-flex rounded-md px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
                   item.color === 'teal' ? 'badge-teal' : 'badge-indigo'
                 }`}>
                   {item.badge}
@@ -233,8 +290,8 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
       </div>
 
       {/* Segmented Controller Tab Bar */}
-      <div className="rounded-2xl border border-slate-200/80 bg-slate-100 p-1.5 shadow-sm max-w-xl mx-auto">
-        <div className="grid grid-cols-3 gap-1">
+      <div className="border-b border-slate-200 bg-white -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 -mt-6 mb-6">
+        <div className="flex gap-8">
           {tabs.map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -243,10 +300,10 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex h-10 items-center justify-center gap-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-300 ${
+                className={`flex h-14 items-center gap-2 border-b-2 px-1 text-xs font-bold uppercase tracking-wider transition-all duration-300 outline-none ${
                   isActive 
-                    ? 'bg-white text-indigo-600 shadow-sm border border-slate-200' 
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/40'
+                    ? 'border-indigo-600 text-indigo-600' 
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
                 <Icon size={14} aria-hidden="true" className={isActive ? 'text-indigo-600' : 'text-slate-400'} />
@@ -261,44 +318,48 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
       {activeTab === 'knowledge' && (
         <div className="grid min-w-0 gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
           {/* Department List Panel */}
-          <aside className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm self-start">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Department Index</h2>
+          <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-4.5 shadow-sm self-start">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Department Index</h2>
               <button
                 type="button"
                 onClick={() => void refreshDocuments()}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-slate-800 hover:border-slate-300 transition shadow-sm"
+                className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-indigo-600 hover:border-indigo-100 transition shadow-sm"
                 aria-label="Refresh database list"
                 title="Refresh database list"
               >
-                <RefreshCw size={13} aria-hidden="true" />
+                <RefreshCw size={12} aria-hidden="true" />
               </button>
             </div>
 
-            <div className="grid gap-1.5">
+            <nav className="space-y-1">
               {SUPPORT_CATEGORIES.map(item => {
                 const isActive = item === category;
+                const CategoryIcon = categoryIcons[item] || Database;
                 return (
                   <button
                     key={item}
                     type="button"
                     onClick={() => setCategory(item)}
-                    className={`flex min-h-11 items-center justify-between rounded-xl border px-3.5 text-left text-xs font-semibold tracking-wide transition-all duration-200 ${
+                    className={`w-full flex items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs font-semibold tracking-wide transition border-l-2 ${
                       isActive
-                        ? 'border-indigo-500 bg-indigo-50/50 text-indigo-600 shadow-sm'
-                        : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:border-indigo-300 hover:text-indigo-600'
+                        ? 'border-indigo-600 bg-indigo-50/50 text-indigo-600 shadow-sm'
+                        : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-800'
                     }`}
                   >
-                    <span>{item}</span>
-                    <span className={`rounded-lg px-2 py-0.5 text-[9px] font-bold ${
-                      isActive ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'
+                    <span className="flex items-center gap-2.5">
+                      <CategoryIcon size={14} className={isActive ? 'text-indigo-600' : 'text-slate-400'} />
+                      {item}
+                    </span>
+                    <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-bold ${
+                      isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400 border border-slate-200/50'
                     }`}>
                       {groupedCount[item] ?? 0}
                     </span>
                   </button>
                 );
               })}
-            </div>
+            </nav>
           </aside>
 
           {/* Main Operations panel */}
@@ -328,7 +389,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                           onClick={() => setUploadMode(item.key as UploadMode)}
                           className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold tracking-wide transition ${
                             isSelected
-                              ? 'bg-white text-indigo-600 shadow-sm border border-slate-250'
+                              ? 'bg-white text-indigo-600 shadow-sm border border-slate-200'
                               : 'text-slate-500 hover:text-slate-800'
                           }`}
                         >
@@ -351,12 +412,17 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
               <div className="pt-5 space-y-4">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                   Document Title / Identifier
-                  <input
-                    value={title}
-                    onChange={event => setTitle(event.target.value)}
-                    placeholder={`${category} operational protocol revision v1.4`}
-                    className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-4 text-xs text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
-                  />
+                  <div className="relative mt-2">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                      <FileText size={14} className="text-slate-400" />
+                    </span>
+                    <input
+                      value={title}
+                      onChange={event => setTitle(event.target.value)}
+                      placeholder={`${category} operational protocol revision v1.4`}
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-xs text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
+                    />
+                  </div>
                 </label>
 
                 {/* Text Ingestion Mode */}
@@ -396,12 +462,22 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                 {/* File Dropzone Ingestion Mode */}
                 {uploadMode === 'file' && (
                   <form onSubmit={handleFileSubmit} className="space-y-4 pt-2">
-                    <label className="flex min-h-[160px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-8 text-center transition hover:border-indigo-500 hover:bg-white">
+                    <label
+                      onDragEnter={handleDrag}
+                      onDragOver={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDrop={handleDrop}
+                      className={`flex min-h-[160px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-8 text-center transition ${
+                        dragActive
+                          ? 'border-indigo-500 bg-indigo-50/50'
+                          : 'border-slate-200 bg-slate-50/60 hover:border-indigo-500 hover:bg-white'
+                      }`}
+                    >
                       <UploadCloud size={34} aria-hidden="true" className="text-indigo-500" />
                       <span className="mt-4 text-xs font-bold text-slate-700">
                         {file ? file.name : 'Select or drop enterprise RAG reference file'}
                       </span>
-                      <span className="mt-1 text-[11px] text-slate-450">Supports TXT, MD, PDF, or DOCX formats (Max 15MB)</span>
+                      <span className="mt-1 text-[11px] text-slate-400">Supports TXT, MD, PDF, or DOCX formats (Max 15MB)</span>
                       <input
                         type="file"
                         accept=".pdf,.docx,.txt,.md"
@@ -425,13 +501,18 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                   <form onSubmit={handleLinkSubmit} className="space-y-4 pt-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
                       Source Web Address
-                      <input
-                        value={url}
-                        onChange={event => setUrl(event.target.value)}
-                        type="url"
-                        placeholder="https://docs.company.com/customer-refunds"
-                        className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-4 text-xs text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
-                      />
+                      <div className="relative mt-2">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                          <Globe2 size={14} className="text-slate-400" />
+                        </span>
+                        <input
+                          value={url}
+                          onChange={event => setUrl(event.target.value)}
+                          type="url"
+                          placeholder="https://docs.company.com/customer-refunds"
+                          className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-xs text-slate-800 placeholder-slate-400 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
+                        />
+                      </div>
                     </label>
                     <button
                       type="submit"
@@ -459,7 +540,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                     value={search}
                     onChange={event => setSearch(event.target.value)}
                     placeholder="Search documents..."
-                    className="w-full bg-transparent text-slate-800 outline-none placeholder-slate-450"
+                    className="w-full bg-transparent text-slate-800 outline-none placeholder-slate-400"
                   />
                 </label>
               </div>
@@ -467,7 +548,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
               {/* Data Table Grid */}
               <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
                 <table className="w-full min-w-[760px] text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-[0.15em] text-slate-450">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-[0.15em] text-slate-400">
                     <tr>
                       <th className="px-4 py-3.5 font-bold">Document Name</th>
                       <th className="px-4 py-3.5 font-bold">Source</th>
@@ -486,7 +567,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-slate-600 font-semibold">{document.char_count.toLocaleString()} chars</td>
-                        <td className="px-4 py-3.5 text-slate-550">
+                        <td className="px-4 py-3.5 text-slate-500">
                           {new Date(document.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </td>
                         <td className="px-4 py-3.5 text-right">
@@ -494,7 +575,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                             type="button"
                             onClick={() => void handleDeleteDocument(document.id, document.title)}
                             disabled={loading}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-red-650 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition disabled:opacity-40 shadow-sm"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-red-600 hover:text-red-500 hover:bg-red-50 hover:border-red-200 transition disabled:opacity-40 shadow-sm"
                             aria-label={`Delete ${document.title}`}
                             title="Purge source"
                           >
@@ -537,7 +618,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                       </div>
                       <div className="mt-1 h-1 rounded-full bg-slate-100">
                         <div
-                          className={`h-full rounded-full transition-all duration-300 ${isCurrent ? 'bg-indigo-600' : 'bg-slate-350'}`}
+                          className={`h-full rounded-full transition-all duration-300 ${isCurrent ? 'bg-indigo-600' : 'bg-slate-300'}`}
                           style={{ width: `${width}%` }}
                         />
                       </div>
@@ -575,17 +656,26 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                 Toggle active departments to adjust client operator exposure limits in real-time.
               </p>
               <div className="space-y-2">
-                {SUPPORT_CATEGORIES.map(item => (
-                  <label key={item} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-semibold text-slate-600 cursor-pointer hover:border-slate-350 transition">
-                    <span>{item}</span>
-                    <input
-                      type="checkbox"
-                      checked={enabledDepartments.includes(item)}
-                      onChange={() => toggleDepartment(item)}
-                      className="h-4 w-4 rounded border-slate-300 bg-white text-indigo-600 accent-indigo-600 cursor-pointer"
-                    />
-                  </label>
-                ))}
+                {SUPPORT_CATEGORIES.map(item => {
+                  const isDepartmentActive = enabledDepartments.includes(item);
+                  return (
+                    <label key={item} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs font-semibold text-slate-600 cursor-pointer hover:border-slate-300 transition select-none">
+                      <span className="flex items-center gap-2.5">
+                        <span className={`h-1.5 w-1.5 rounded-full ${isDepartmentActive ? 'bg-emerald-500' : 'bg-slate-350'}`} />
+                        <span className="text-slate-800">{item}</span>
+                        <span className={`text-[10px] font-bold ${isDepartmentActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+                          {isDepartmentActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={isDepartmentActive}
+                        onChange={() => toggleDepartment(item)}
+                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 accent-indigo-600 cursor-pointer"
+                      />
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </aside>
@@ -595,26 +685,39 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
       {/* TAB CONTENT: COMPANY SETTINGS */}
       {activeTab === 'company' && (
         <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+          <form onSubmit={handleCompanySubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
             <div>
               <h2 className="text-sm font-bold tracking-tight text-slate-800 font-display uppercase">Corporate Profile Branding</h2>
-              <p className="text-xs text-slate-550">Configure visual themes and default settings for your workspace.</p>
+              <p className="text-xs text-slate-500">Configure visual themes and default settings for your workspace.</p>
             </div>
             
+            {message && (
+              <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800">
+                {message}
+              </p>
+            )}
+
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                ['Company Name', 'Acme Global Services'],
-                ['Support Dispatch Email', 'support@company.com'],
-                ['Localization Language', 'English (US)'],
-                ['Operational Timezone', 'Asia/Kolkata'],
-                ['Support Custom Domain', 'support.company.com'],
-                ['System Brand Hex Color', '#0d9488'],
-              ].map(([label, value]) => (
-                <label key={label} className="block text-xs font-bold uppercase tracking-wider text-slate-500">
-                  {label}
+                { key: 'companyName', label: 'Company Name', value: companyName, onChange: setCompanyName, disabled: false },
+                { key: 'dispatchEmail', label: 'Support Dispatch Email', value: dispatchEmail, onChange: setDispatchEmail, disabled: false, type: 'email' },
+                { key: 'lang', label: 'Localization Language', value: 'English (US)', disabled: true },
+                { key: 'timezone', label: 'Operational Timezone', value: 'Asia/Kolkata', disabled: true },
+                { key: 'domain', label: 'Support Custom Domain', value: customDomain, onChange: setCustomDomain, disabled: false },
+                { key: 'color', label: 'System Brand Hex Color', value: brandColor, onChange: setBrandColor, disabled: false },
+              ].map(item => (
+                <label key={item.label} className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                  {item.label}
                   <input
-                    defaultValue={value}
-                    className="mt-2 h-10 w-full rounded-xl border border-slate-200 bg-white px-4 text-xs text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20"
+                    value={item.value}
+                    onChange={item.onChange ? e => item.onChange(e.target.value) : undefined}
+                    disabled={item.disabled}
+                    type={item.type || 'text'}
+                    className={`mt-2 h-10 w-full rounded-xl border px-4 text-xs outline-none transition ${
+                      item.disabled
+                        ? 'border-slate-200 bg-slate-50 text-slate-400 cursor-not-allowed font-medium'
+                        : 'border-slate-200 bg-white text-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20'
+                    }`}
                   />
                 </label>
               ))}
@@ -626,20 +729,41 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
                 Define visibility mappings. Checking a category displays the department chat inside the Client Console.
               </p>
               <div className="grid gap-2 md:grid-cols-2">
-                {SUPPORT_CATEGORIES.map(item => (
-                  <label key={item} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-600 cursor-pointer hover:border-slate-350 transition">
-                    <span>{item}</span>
-                    <input
-                      type="checkbox"
-                      checked={enabledDepartments.includes(item)}
-                      onChange={() => toggleDepartment(item)}
-                      className="h-4 w-4 rounded border-slate-300 text-indigo-600 accent-indigo-600 cursor-pointer"
-                    />
-                  </label>
-                ))}
+                {SUPPORT_CATEGORIES.map(item => {
+                  const isDepartmentActive = enabledDepartments.includes(item);
+                  return (
+                    <label key={item} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-600 cursor-pointer hover:border-slate-350 transition select-none">
+                      <span className="flex items-center gap-2.5">
+                        <span className={`h-1.5 w-1.5 rounded-full ${isDepartmentActive ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                        <span className="text-slate-800">{item}</span>
+                        <span className={`text-[10px] font-bold ${isDepartmentActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+                          {isDepartmentActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={isDepartmentActive}
+                        onChange={() => toggleDepartment(item)}
+                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 accent-indigo-600 cursor-pointer"
+                      />
+                    </label>
+                  );
+                })}
               </div>
             </div>
-          </div>
+
+            <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+              <span className="text-[11px] text-slate-400">Workspace Tenant: Sandbox Environment</span>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+              >
+                <Save size={13} aria-hidden="true" />
+                {loading ? 'Saving Changes...' : 'Save Profile Details'}
+              </button>
+            </div>
+          </form>
           
           <aside className="space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -689,7 +813,7 @@ export function AdminDashboard({ accessToken }: AdminDashboardProps) {
             </div>
             
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm relative overflow-hidden flex flex-col items-center justify-center py-8">
-              <SlidersHorizontal size={22} aria-hidden="true" className="text-indigo-650 mb-2" />
+              <SlidersHorizontal size={22} aria-hidden="true" className="text-indigo-600 mb-2" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Quality Assessment</h3>
               <p className="mt-3 text-4xl font-extrabold text-indigo-600 tracking-tight">{documents.length > 0 ? 84 : 15}%</p>
               <span className="mt-2 text-[10px] text-indigo-500 uppercase tracking-wider font-bold">Calculated Corpus Health</span>

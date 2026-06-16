@@ -85,6 +85,29 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    const cleanMsg = message.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "");
+    const GREETINGS = new Set([
+      'hi', 'hello', 'hey', 'hola', 'greetings', 'yo',
+      'good morning', 'good afternoon', 'good evening', 'hi there', 'hello there'
+    ]);
+
+    if (GREETINGS.has(cleanMsg)) {
+      const greetAnswer = `Hello! 👋 How can I help you today? Feel free to ask your support question, and I will search the company knowledge base for answers.`;
+      const savedTicketId = await saveConversation({
+        ticketId,
+        category,
+        customerEmail,
+        userMessage: message,
+        answer: greetAnswer,
+        sources: [],
+      });
+      return res.json({
+        answer: greetAnswer,
+        sources: [],
+        ticketId: savedTicketId,
+      });
+    }
+
     const chunks = await retrieveRelevantChunks(message, category);
     const context = buildContext(chunks);
     const sources = [...new Set(chunks.map(chunk => chunk.source))];
