@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ChatRequest, SUPPORT_CATEGORIES, SupportCategory } from '../types';
 import { generateAnswer } from '../services/ai';
 import { buildContext, retrieveRelevantChunks } from '../services/retriever';
-import { getSupabaseClient, isSupabaseConfigured } from '../services/supabase';
+import { getSupabaseAdminClient, isSupabaseConfigured } from '../services/supabase';
 
 const router = Router();
 
@@ -22,7 +22,7 @@ async function saveConversation(input: {
     return input.ticketId;
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = getSupabaseAdminClient();
   let ticketId = input.ticketId;
 
   if (!ticketId) {
